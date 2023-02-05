@@ -137,6 +137,7 @@ class DatabaseService {
       "recentMessage": chatMessageData["message"],
       "recentMessageSender": chatMessageData["sender"],
       "recentMessageTime": chatMessageData["time"].toString(),
+      "recentMessageSeenBy": []
     });
   }
 
@@ -144,7 +145,22 @@ class DatabaseService {
     return await groupCollection.doc(groupId).snapshots();
   }
 
-  Future getUserGroupsv1() async{
-    return await groupCollection.where("members", arrayContains: uid).snapshots();
+  Future getUserGroupsv1() async {
+    return await groupCollection
+        .where("members", arrayContains: uid)
+        .snapshots();
+  }
+
+  Future toggleRecentMessageSeen(String groupId) async {
+    DocumentReference groupReference = userCollection.doc(groupId);
+    DocumentSnapshot documentSnapshot = await groupReference.get();
+
+    List messageSeenBy = documentSnapshot["recentMessageSeenBy"];
+
+    if (!messageSeenBy.contains(uid)) {
+      groupReference.update({
+        "recentMessageSeenBy": FieldValue.arrayUnion([uid]),
+      });
+    }
   }
 }

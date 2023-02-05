@@ -103,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  getChatAndAdmin() {
+  getChatAndAdmin() async{
     DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
         .getChats(widget.groupId)
         .then((val) {
@@ -119,6 +119,9 @@ class _ChatPageState extends State<ChatPage> {
         admin = value;
       });
     });
+
+     DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+        .toggleRecentMessageSeen(widget.groupId);
   }
 
   chatMessages() {
@@ -150,6 +153,11 @@ class _ChatPageState extends State<ChatPage> {
 
       DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
           .sendMessage(widget.groupId, chatMessageMap);
+
+
+      DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+        .toggleRecentMessageSeen(widget.groupId);
+
 
       setState(() {
         messageController.clear();
