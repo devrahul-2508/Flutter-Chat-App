@@ -152,13 +152,13 @@ class DatabaseService {
   }
 
   Future toggleRecentMessageSeen(String groupId) async {
-    DocumentReference groupReference = userCollection.doc(groupId);
+    DocumentReference groupReference = groupCollection.doc(groupId);
     DocumentSnapshot documentSnapshot = await groupReference.get();
 
     List messageSeenBy = documentSnapshot["recentMessageSeenBy"];
 
     if (!messageSeenBy.contains(uid)) {
-      groupReference.update({
+      await groupReference.update({
         "recentMessageSeenBy": FieldValue.arrayUnion([uid]),
       });
     }

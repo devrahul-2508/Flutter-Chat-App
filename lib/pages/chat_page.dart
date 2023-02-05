@@ -120,8 +120,14 @@ class _ChatPageState extends State<ChatPage> {
       });
     });
 
+
+
+
      DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
         .toggleRecentMessageSeen(widget.groupId);
+
+
+        
   }
 
   chatMessages() {

@@ -304,6 +304,7 @@ class _HomePageState extends State<HomePage> {
                         recentMessage:  snapshot.data.docs[reverseIndex]["recentMessage"],
                         recentMessageSender:  snapshot.data.docs[reverseIndex]["recentMessageSender"],
                         recentMessageTime:  snapshot.data.docs[reverseIndex]["recentMessageTime"],
+                        isRecentMessageSeen: (snapshot.data.docs[reverseIndex]["recentMessageSeenBy"].contains(FirebaseAuth.instance.currentUser!.uid))? true:false,
                       );
                     });
               } else {

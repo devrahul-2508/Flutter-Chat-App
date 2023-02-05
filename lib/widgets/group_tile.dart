@@ -9,6 +9,7 @@ class GroupTile extends StatefulWidget {
   final String? recentMessage;
   final String? recentMessageSender;
   final String? recentMessageTime;
+  final bool? isRecentMessageSeen;
   const GroupTile(
       {Key? key,
       required this.groupId,
@@ -16,7 +17,8 @@ class GroupTile extends StatefulWidget {
       required this.userName,
       this.recentMessage,
       this.recentMessageSender,
-      this.recentMessageTime})
+      this.recentMessageTime,
+      this.isRecentMessageSeen})
       : super(key: key);
 
   @override
@@ -38,28 +40,39 @@ class _GroupTileState extends State<GroupTile> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
         child: ListTile(
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundColor: Theme.of(context).primaryColor,
-              child: Text(
-                widget.groupName.substring(0, 1).toUpperCase(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w500),
-              ),
+          leading: CircleAvatar(
+            radius: 30,
+            backgroundColor: Theme.of(context).primaryColor,
+            child: Text(
+              widget.groupName.substring(0, 1).toUpperCase(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w500),
             ),
-            title: Text(
-              widget.groupName,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: (widget.recentMessage!.isEmpty ||
-                    widget.recentMessageSender!.isEmpty)
-                ? Text(
-                    "Join the conversation as ${widget.userName}",
-                    style: const TextStyle(fontSize: 13),
-                  )
-                : Text(
-                    "${widget.recentMessageSender}: ${widget.recentMessage}")),
+          ),
+          title: Text(
+            widget.groupName,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: (widget.recentMessage!.isEmpty ||
+                  widget.recentMessageSender!.isEmpty)
+              ? Text(
+                  "Join the conversation as ${widget.userName}",
+                  style: const TextStyle(fontSize: 13),
+                )
+              : Text(
+                  "${widget.recentMessageSender}: ${widget.recentMessage}",
+                  style: (widget.isRecentMessageSeen!)
+                      ? TextStyle(fontWeight: FontWeight.normal)
+                      : TextStyle(fontWeight: FontWeight.bold),
+                ),
+          trailing: Icon(
+            Icons.circle,
+            color: (widget.isRecentMessageSeen!)
+                ? Colors.white
+                : Theme.of(context).primaryColor,
+          ),
+        ),
       ),
     );
   }
