@@ -103,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  getChatAndAdmin() async{
+  getChatAndAdmin() async {
     DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
         .getChats(widget.groupId)
         .then((val) {
@@ -120,20 +120,21 @@ class _ChatPageState extends State<ChatPage> {
       });
     });
 
-
-
-
-     DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+    DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
         .toggleRecentMessageSeen(widget.groupId);
 
-
-        
+    // chats!.listen((event) {
+    //   DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+    //       .toggleRecentMessageSeen(widget.groupId);
+    // });
   }
 
   chatMessages() {
     return StreamBuilder(
         stream: chats,
         builder: (context, AsyncSnapshot snapshot) {
+          DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+              .toggleRecentMessageSeen(widget.groupId);
           return snapshot.hasData
               ? ListView.builder(
                   itemCount: snapshot.data.docs.length,
@@ -160,10 +161,8 @@ class _ChatPageState extends State<ChatPage> {
       DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
           .sendMessage(widget.groupId, chatMessageMap);
 
-
       DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
-        .toggleRecentMessageSeen(widget.groupId);
-
+          .toggleRecentMessageSeen(widget.groupId);
 
       setState(() {
         messageController.clear();
