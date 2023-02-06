@@ -1,6 +1,7 @@
 import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/pages/login_page.dart';
 import 'package:chat_app/shared/constants.dart';
+import 'package:chat_app/theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -56,7 +57,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(primaryColor: Constants.primaryColor),
+        theme: MyTheme.appTheme(context),
+        darkTheme: MyTheme.appTheme(context),
         home: (_isSignedIn) ? HomePage() : LoginPage());
   }
 }

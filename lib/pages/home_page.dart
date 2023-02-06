@@ -60,7 +60,8 @@ class _HomePageState extends State<HomePage> {
 
     // getting user snapshots
 
-    await DatabaseService(uid: "${FirebaseAuth.instance.currentUser!.uid}_$username")
+    await DatabaseService(
+            uid: "${FirebaseAuth.instance.currentUser!.uid}_$username")
         .getUserGroupsv1()
         .then((snapshot) {
       setState(() {
@@ -82,6 +83,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         actions: [
           IconButton(
@@ -91,7 +93,6 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.search))
         ],
         centerTitle: true,
-        backgroundColor: Theme.of(context).primaryColor,
         elevation: 0.0,
         title: Text(
           "Groups",
@@ -99,6 +100,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       drawer: Drawer(
+        backgroundColor: Theme.of(context).backgroundColor,
         child: SafeArea(
           child: ListView(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -119,14 +121,14 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 onTap: () {},
-                selectedColor: Theme.of(context).primaryColor,
+                selectedColor: Theme.of(context).accentColor,
                 selected: true,
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 leading: Icon(Icons.group),
                 title: Text(
                   "Groups",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: Theme.of(context).accentColor),
                 ),
               ),
               ListTile(
@@ -138,13 +140,13 @@ class _HomePageState extends State<HomePage> {
                         email: email,
                       ));
                 },
-                selectedColor: Theme.of(context).primaryColor,
+                selectedColor: Theme.of(context).accentColor,
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 leading: Icon(Icons.group),
                 title: Text(
                   "Profile",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
               ListTile(
@@ -186,7 +188,7 @@ class _HomePageState extends State<HomePage> {
                 leading: Icon(Icons.exit_to_app),
                 title: Text(
                   "Log Out",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: Colors.white),
                 ),
               )
             ],
@@ -195,7 +197,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: groupList(),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Theme.of(context).accentColor,
           child: Icon(Icons.add),
           onPressed: () {
             popUpDialog(context);
@@ -285,36 +287,36 @@ class _HomePageState extends State<HomePage> {
           //make checks
 
           if (snapshot.hasData) {
-        
-              if (snapshot.data.docs.length != 0) {
-              
-                
+            if (snapshot.data.docs.length != 0) {
+              return ListView.builder(
+                  itemCount: snapshot.data.docs.length,
+                  itemBuilder: (context, index) {
+                    var reverseIndex = snapshot.data.docs.length - index - 1;
 
-                return ListView.builder(
-                    itemCount: snapshot.data.docs.length,
-                    itemBuilder: (context, index) {
-                      var reverseIndex =
-                          snapshot.data.docs.length - index - 1;
-
-                      return GroupTile(
-                        groupId: snapshot.data.docs[reverseIndex]["groupId"],
-                        groupName:
-                           snapshot.data.docs[reverseIndex]["groupName"],
-                        userName: username,
-                        recentMessage:  snapshot.data.docs[reverseIndex]["recentMessage"],
-                        recentMessageSender:  snapshot.data.docs[reverseIndex]["recentMessageSender"],
-                        recentMessageTime:  snapshot.data.docs[reverseIndex]["recentMessageTime"],
-                        isRecentMessageSeen: (snapshot.data.docs[reverseIndex]["recentMessageSeenBy"].contains(FirebaseAuth.instance.currentUser!.uid))? true:false,
-                      );
-                    });
-              } else {
-                return noGroupWidget();
-              }
-           
+                    return GroupTile(
+                      groupId: snapshot.data.docs[reverseIndex]["groupId"],
+                      groupName: snapshot.data.docs[reverseIndex]["groupName"],
+                      userName: username,
+                      recentMessage: snapshot.data.docs[reverseIndex]
+                          ["recentMessage"],
+                      recentMessageSender: snapshot.data.docs[reverseIndex]
+                          ["recentMessageSender"],
+                      recentMessageTime: snapshot.data.docs[reverseIndex]
+                          ["recentMessageTime"],
+                      isRecentMessageSeen: (snapshot
+                              .data.docs[reverseIndex]["recentMessageSeenBy"]
+                              .contains(FirebaseAuth.instance.currentUser!.uid))
+                          ? true
+                          : false,
+                    );
+                  });
+            } else {
+              return noGroupWidget();
+            }
           } else {
             return Center(
               child: CircularProgressIndicator(
-                  color: Theme.of(context).primaryColor),
+                  color: Theme.of(context).accentColor),
             );
           }
         });

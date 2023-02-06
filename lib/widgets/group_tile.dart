@@ -1,3 +1,4 @@
+import 'package:chat_app/helper/timestamp_converter.dart';
 import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -40,39 +41,56 @@ class _GroupTileState extends State<GroupTile> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
         child: ListTile(
-          leading: CircleAvatar(
-            radius: 30,
-            backgroundColor: Theme.of(context).primaryColor,
-            child: Text(
-              widget.groupName.substring(0, 1).toUpperCase(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w500),
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundColor: Theme.of(context).accentColor,
+              child: Text(
+                widget.groupName.substring(0, 1).toUpperCase(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w500),
+              ),
             ),
-          ),
-          title: Text(
-            widget.groupName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: (widget.recentMessage!.isEmpty ||
-                  widget.recentMessageSender!.isEmpty)
-              ? Text(
-                  "Join the conversation as ${widget.userName}",
-                  style: const TextStyle(fontSize: 13),
-                )
-              : Text(
-                  "${widget.recentMessageSender}: ${widget.recentMessage}",
-                  style: (widget.isRecentMessageSeen!)
-                      ? TextStyle(fontWeight: FontWeight.normal)
-                      : TextStyle(fontWeight: FontWeight.bold),
-                ),
-          trailing: Icon(
-            Icons.circle,
-            color: (widget.isRecentMessageSeen!)
-                ? Colors.white
-                : Theme.of(context).primaryColor,
-          ),
-        ),
+            title: Text(
+              widget.groupName,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: (widget.recentMessage!.isEmpty ||
+                    widget.recentMessageSender!.isEmpty)
+                ? Text(
+                    "Join the conversation as ${widget.userName}",
+                    style: const TextStyle(fontSize: 13),
+                  )
+                : Text(
+                    "${widget.recentMessageSender}: ${widget.recentMessage}",
+                    style: (widget.isRecentMessageSeen!)
+                        ? TextStyle(fontWeight: FontWeight.normal)
+                        : TextStyle(fontWeight: FontWeight.bold),
+                  ),
+            // trailing: Icon(
+            //   Icons.circle,
+            //   color: (widget.isRecentMessageSeen!)
+            //       ? Colors.white
+            //       : Theme.of(context).primaryColor,
+            // ),
+            trailing: (widget.isRecentMessageSeen!)
+                ? Text(DateTimeConverter.convertTimeStamp(
+                    int.parse(widget.recentMessageTime!)))
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 15,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(DateTimeConverter.convertTimeStamp(
+                          int.parse(widget.recentMessageTime!)))
+                    ],
+                  )),
       ),
     );
   }

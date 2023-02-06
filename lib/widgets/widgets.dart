@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 const textInputDecoration = InputDecoration(
     labelStyle:
-        TextStyle(color: Color(0xFFee7b64), fontWeight: FontWeight.w300),
+        TextStyle(color: Color(0xffb9f85ff), fontWeight: FontWeight.w300),
     focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFee7b64), width: 3)),
+        borderSide: BorderSide(color: Color(0xffb9f85ff), width: 3)),
     enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFee7b64), width: 3)),
+        borderSide: BorderSide(color: Color(0xffb9f85ff), width: 3)),
     errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFee7b64), width: 3)));
+        borderSide: BorderSide(color: Color(0xffb9f85ff), width: 3)));
 
 void nextScreen(context, page) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => page));

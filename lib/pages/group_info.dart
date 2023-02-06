@@ -42,7 +42,6 @@ class _GroupInfoState extends State<GroupInfo> {
         .then((value) {
       setState(() {
         members = value;
-        
       });
     });
   }
@@ -50,11 +49,11 @@ class _GroupInfoState extends State<GroupInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
           centerTitle: true,
           elevation: 0,
           title: Text("Group Info"),
-          backgroundColor: Theme.of(context).primaryColor,
           actions: [
             IconButton(onPressed: () {}, icon: Icon(Icons.exit_to_app))
           ],
@@ -67,16 +66,18 @@ class _GroupInfoState extends State<GroupInfo> {
                   padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: Theme.of(context).primaryColor.withOpacity(0.2),
+                    color: Theme.of(context).accentColor.withOpacity(0.5),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Theme.of(context).accentColor,
                         child: Text(
-                            widget.groupName.substring(0, 1).toUpperCase()),
+                          widget.groupName.substring(0, 1).toUpperCase(),
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       SizedBox(
                         width: 15,
@@ -117,7 +118,7 @@ class _GroupInfoState extends State<GroupInfo> {
                     child: ListTile(
                       leading: CircleAvatar(
                         radius: 30,
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Theme.of(context).accentColor,
                         child: Text(
                           getName(snapshot.data['members'][index])
                               .substring(0, 1)

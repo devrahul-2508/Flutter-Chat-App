@@ -28,10 +28,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
       body: (_isLoading)
           ? Center(
               child: CircularProgressIndicator(
-                  color: Theme.of(context).primaryColor),
+                  color: Theme.of(context).accentColor),
             )
           : SingleChildScrollView(
               child: Padding(
@@ -62,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                               labelText: "Email",
                               prefixIcon: Icon(
                                 Icons.email,
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                               )),
                           onChanged: (value) {
                             setState(() {
@@ -79,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                               labelText: "Password",
                               prefixIcon: Icon(
                                 Icons.lock,
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                               )),
                           onChanged: ((value) {
                             setState(() {
@@ -94,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  primary: Theme.of(context).primaryColor,
+                                  primary: Theme.of(context).accentColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20))),
@@ -109,16 +110,16 @@ class _LoginPageState extends State<LoginPage> {
                         Text.rich(
                           TextSpan(text: "Don't have an account?", children: [
                             TextSpan(
-                                text: "Register Here",
+                                text: " Register Here",
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     nextScreenReplace(context, RegisterPage());
                                   },
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
+                                    color: Theme.of(context).accentColor,
                                     fontSize: 14))
                           ]),
-                          style: TextStyle(color: Colors.black, fontSize: 14),
+                          style: TextStyle(color: Colors.white, fontSize: 14),
                         )
                       ],
                     )),
@@ -139,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
           QuerySnapshot snapshot =
               await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
                   .gettingUserData(email);
-    
+
           // saving the values to our shared preferences
           await HelperFunctions.saveUserLoggedInStatus(true);
           await HelperFunctions.saveUserEmailSF(email);

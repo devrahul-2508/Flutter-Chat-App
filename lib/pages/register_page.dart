@@ -29,10 +29,11 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
       body: (_isLoading)
           ? Center(
               child: CircularProgressIndicator(
-                  color: Theme.of(context).primaryColor),
+                  color: Theme.of(context).accentColor),
             )
           : SingleChildScrollView(
               child: Padding(
@@ -63,7 +64,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               labelText: "Username",
                               prefixIcon: Icon(
                                 Icons.person,
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                               )),
                           onChanged: (value) {
                             setState(() {
@@ -79,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               labelText: "Email",
                               prefixIcon: Icon(
                                 Icons.email,
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                               )),
                           onChanged: (value) {
                             setState(() {
@@ -96,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               labelText: "Password",
                               prefixIcon: Icon(
                                 Icons.lock,
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                               )),
                           onChanged: ((value) {
                             setState(() {
@@ -111,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  primary: Theme.of(context).primaryColor,
+                                  primary: Theme.of(context).accentColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20))),
@@ -126,16 +127,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         Text.rich(
                           TextSpan(text: "Already have an account?", children: [
                             TextSpan(
-                                text: "Login Here",
+                                text: " Login Here",
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     nextScreenReplace(context, LoginPage());
                                   },
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
+                                    color: Theme.of(context).accentColor,
                                     fontSize: 14))
                           ]),
-                          style: TextStyle(color: Colors.black, fontSize: 14),
+                          style: TextStyle(color: Colors.white, fontSize: 14),
                         )
                       ],
                     )),

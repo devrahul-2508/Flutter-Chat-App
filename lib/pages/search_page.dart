@@ -48,17 +48,17 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color(0xffb272336),
         appBar: AppBar(
           elevation: 0,
           centerTitle: true,
-          backgroundColor: Theme.of(context).primaryColor,
           title: Text(
             "Search",
           ),
         ),
         body: Column(children: [
           Container(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).backgroundColor,
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Row(
               children: [
@@ -150,8 +150,11 @@ class _SearchPageState extends State<SearchPage> {
       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       leading: CircleAvatar(
         radius: 30,
-        backgroundColor: Theme.of(context).primaryColor,
-        child: Text(groupName.substring(0, 1).toUpperCase()),
+        backgroundColor: Theme.of(context).accentColor,
+        child: Text(
+          groupName.substring(0, 1).toUpperCase(),
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       title: Text(
         groupName,
@@ -170,7 +173,7 @@ class _SearchPageState extends State<SearchPage> {
             showSnackbar(context, Colors.green,
                 "Successfully joined group ${groupName}");
 
-                  Future.delayed(const Duration(seconds: 2), () {
+            Future.delayed(const Duration(seconds: 2), () {
               nextScreen(
                   context,
                   ChatPage(
@@ -202,7 +205,7 @@ class _SearchPageState extends State<SearchPage> {
             : Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).accentColor,
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

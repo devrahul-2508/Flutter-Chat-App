@@ -26,22 +26,25 @@ class _ChatPageState extends State<ChatPage> {
   String admin = "";
   Stream<QuerySnapshot>? chats;
   TextEditingController messageController = TextEditingController();
+  ScrollController listScrollController = ScrollController();
 
   @override
   void initState() {
     // TODO: implement initState
     getChatAndAdmin();
+    scrollToBottom();
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffb272336),
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
         title: Text(widget.groupName),
-        backgroundColor: Theme.of(context).primaryColor,
         actions: [
           IconButton(
               onPressed: () {
@@ -55,48 +58,15 @@ class _ChatPageState extends State<ChatPage> {
               icon: Icon(Icons.info))
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
           chatMessages(),
-          Container(
-            alignment: AlignmentDirectional.bottomCenter,
-            width: MediaQuery.of(context).size.width,
-            child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                color: Colors.grey[700],
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: TextFormField(
-                      controller: messageController,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                          hintText: "Send a message..",
-                          hintStyle: TextStyle(color: Colors.white),
-                          border: InputBorder.none),
-                    )),
-                    SizedBox(
-                      width: 12,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        sendMessage();
-                      },
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(30)),
-                        child: Icon(
-                          Icons.send,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  ],
-                )),
+          SizedBox(
+            height: 10,
+          ),
+          _buildMessageComposer(),
+          SizedBox(
+            height: 10,
           )
         ],
       ),
@@ -135,19 +105,65 @@ class _ChatPageState extends State<ChatPage> {
         builder: (context, AsyncSnapshot snapshot) {
           DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
               .toggleRecentMessageSeen(widget.groupId);
+
+          scrollToBottom();
+
           return snapshot.hasData
-              ? ListView.builder(
-                  itemCount: snapshot.data.docs.length,
-                  itemBuilder: (context, index) {
-                    return MessageTile(
-                      message: snapshot.data.docs[index]["message"],
-                      sender: snapshot.data.docs[index]['sender'],
-                      isMe: widget.userName ==
-                          snapshot.data.docs[index]['sender'],
-                    );
-                  })
+              ? Flexible(
+                  child: ListView.builder(
+                      controller: listScrollController,
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context, index) {
+                        return MessageTile(
+                          message: snapshot.data.docs[index]["message"],
+                          sender: snapshot.data.docs[index]['sender'],
+                          isMe: widget.userName ==
+                              snapshot.data.docs[index]['sender'],
+                          messageTimeStamp: snapshot.data.docs[index]['time'],
+                        );
+                      }),
+                )
               : Container();
         });
+  }
+
+  Widget _buildMessageComposer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+            color: Color(0xffb312b46), borderRadius: BorderRadius.circular(40)),
+        child: Row(children: [
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: TextField(
+              controller: messageController,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration.collapsed(
+                hintText: "Enter your message...",
+                hintStyle: TextStyle(color: Colors.white),
+              ),
+            ),
+          )),
+          ButtonBar(
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.send,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  sendMessage();
+                },
+              ),
+            ],
+          )
+        ]),
+      ),
+    );
   }
 
   sendMessage() {
@@ -167,6 +183,13 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         messageController.clear();
       });
+    }
+  }
+
+  scrollToBottom() async {
+    if (listScrollController.hasClients) {
+      final position = listScrollController.position.maxScrollExtent;
+      listScrollController.jumpTo(position);
     }
   }
 }
