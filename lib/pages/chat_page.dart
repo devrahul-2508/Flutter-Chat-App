@@ -33,13 +33,13 @@ class _ChatPageState extends State<ChatPage> {
     // TODO: implement initState
     getChatAndAdmin();
     scrollToBottom();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Color(0xffb272336),
       appBar: AppBar(
         centerTitle: true,
@@ -107,9 +107,8 @@ class _ChatPageState extends State<ChatPage> {
               .toggleRecentMessageSeen(widget.groupId);
 
           scrollToBottom();
-
           return snapshot.hasData
-              ? Flexible(
+              ? Expanded(
                   child: ListView.builder(
                       controller: listScrollController,
                       itemCount: snapshot.data.docs.length,
@@ -123,7 +122,7 @@ class _ChatPageState extends State<ChatPage> {
                         );
                       }),
                 )
-              : Container();
+              : Expanded(child: Container());
         });
   }
 
@@ -186,10 +185,12 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  scrollToBottom() async {
+  scrollToBottom() {
     if (listScrollController.hasClients) {
-      final position = listScrollController.position.maxScrollExtent;
-      listScrollController.jumpTo(position);
+      listScrollController.animateTo(
+          listScrollController.position.maxScrollExtent + 100,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut);
     }
   }
 }
