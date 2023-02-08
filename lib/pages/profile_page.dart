@@ -1,4 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:io';
+
 import 'package:chat_app/pages/login_page.dart';
 import 'package:chat_app/service/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,20 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   AuthService authService = AuthService();
+  //FilePickerResult? result = null;
+  String imagePath = "";
+
+  // selectImages() async {
+  //   result = await FilePicker.platform.pickFiles();
+
+  //   if (result != null) {
+  //     imagePath = result!.files.single.path!;
+
+  //     setState(() {});
+  //   } else {
+  //     // User canceled the picker
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +57,24 @@ class _ProfilePageState extends State<ProfilePage> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 50),
             children: <Widget>[
-              Icon(
-                Icons.account_circle,
-                size: 150,
-                color: Colors.grey[700],
-              ),
+              (imagePath == "")
+                  ? InkWell(
+                      onTap: (){},
+                      child: Container(
+                        child: Icon(
+                          Icons.account_circle,
+                          size: 150,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    )
+                  : InkWell(
+                      onTap: (){},
+                      child: CircleAvatar(
+                        radius: 75,
+                        child: Image.file(File(imagePath)),
+                      ),
+                    ),
               const SizedBox(
                 height: 15,
               ),
