@@ -1,7 +1,12 @@
 import 'dart:io';
 
+import 'package:chat_app/helper/helper_function.dart';
 import 'package:chat_app/pages/login_page.dart';
 import 'package:chat_app/service/auth_service.dart';
+import 'package:chat_app/service/database_service.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -25,20 +30,36 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   AuthService authService = AuthService();
-  //FilePickerResult? result = null;
+  FilePickerResult? result;
   String imagePath = "";
+  String userDp = "";
 
-  // selectImages() async {
-  //   result = await FilePicker.platform.pickFiles();
+  selectImages() async {
+    result = await FilePicker.platform.pickFiles();
 
-  //   if (result != null) {
-  //     imagePath = result!.files.single.path!;
+    if (result != null) {
+      imagePath = result!.files.single.path!;
 
-  //     setState(() {});
-  //   } else {
-  //     // User canceled the picker
-  //   }
-  // }
+      setState(() {});
+    } else {
+      // User canceled the picker
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUserData();
+  }
+
+  getUserData() async {
+    await HelperFunctions.getUserProfilePicFromSF().then((value) {
+      setState(() {
+        userDp = value!;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,23 +78,15 @@ class _ProfilePageState extends State<ProfilePage> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 50),
             children: <Widget>[
-              (imagePath == "")
-                  ? InkWell(
-                      onTap: (){},
-                      child: Container(
-                        child: Icon(
-                          Icons.account_circle,
-                          size: 150,
-                          color: Colors.grey[700],
-                        ),
-                      ),
+              (userDp == "")
+                  ? Icon(
+                      Icons.account_circle,
+                      size: 150,
+                      color: Colors.grey[700],
                     )
-                  : InkWell(
-                      onTap: (){},
-                      child: CircleAvatar(
-                        radius: 75,
-                        child: Image.file(File(imagePath)),
-                      ),
+                  : CircleAvatar(
+                      radius: 75,
+                      backgroundImage: NetworkImage(userDp),
                     ),
               const SizedBox(
                 height: 15,
@@ -108,9 +121,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 leading: const Icon(Icons.group),
-                title: const Text(
+                title: Text(
                   "Profile",
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).accentColor),
                 ),
               ),
               ListTile(
@@ -163,10 +176,42 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Icon(
-              Icons.account_circle,
-              size: 200,
-              color: Colors.grey[700],
+            Stack(
+              children: [
+                (imagePath == "")
+                    ? (userDp == "")
+                        ? GestureDetector(
+                            onTap: selectImages,
+                            child: Icon(
+                              Icons.account_circle,
+                              size: 200,
+                              color: Colors.grey[700],
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: selectImages,
+                            child: CircleAvatar(
+                                radius: 100,
+                                backgroundImage: NetworkImage(userDp)),
+                          )
+                    : GestureDetector(
+                        onTap: selectImages,
+                        child: CircleAvatar(
+                            radius: 100,
+                            backgroundImage: FileImage(File(imagePath))),
+                      ),
+                Positioned(
+                    bottom: 10,
+                    right: 20,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Theme.of(context).accentColor,
+                      child: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                      ),
+                    ))
+              ],
             ),
             const SizedBox(
               height: 15,
@@ -188,9 +233,32 @@ class _ProfilePageState extends State<ProfilePage> {
                 Text(widget.email, style: const TextStyle(fontSize: 17)),
               ],
             ),
+            SizedBox(
+              height: 10,
+            ),
+            (imagePath != "")
+                ? ElevatedButton(
+                    onPressed: () {
+                      updateDp();
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).accentColor),
+                    child: Text("Save"))
+                : Container()
           ],
         ),
       ),
     );
+  }
+
+  updateDp() async {
+    await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+        .updateUserDp(imagePath)
+        .then((value) {
+      print(value);
+      showSnackbar(context, Colors.green, "Successfully updated!");
+    }, onError: (e) => print("Error updating document $e"));
+
+    setState(() {});
   }
 }

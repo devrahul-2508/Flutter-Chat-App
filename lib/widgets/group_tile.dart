@@ -7,15 +7,18 @@ class GroupTile extends StatefulWidget {
   final String userName;
   final String groupId;
   final String groupName;
+  final String groupIcon;
   final String? recentMessage;
   final String? recentMessageSender;
   final String? recentMessageTime;
   final bool? isRecentMessageSeen;
+
   const GroupTile(
       {Key? key,
       required this.groupId,
       required this.groupName,
       required this.userName,
+      required this.groupIcon,
       this.recentMessage,
       this.recentMessageSender,
       this.recentMessageTime,
@@ -36,7 +39,9 @@ class _GroupTileState extends State<GroupTile> {
             ChatPage(
                 groupId: widget.groupId,
                 groupName: widget.groupName,
-                userName: widget.userName));
+                userName: widget.userName,
+                groupIcon: widget.groupIcon
+                ));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
@@ -44,12 +49,14 @@ class _GroupTileState extends State<GroupTile> {
             leading: CircleAvatar(
               radius: 30,
               backgroundColor: Theme.of(context).accentColor,
-              child: Text(
-                widget.groupName.substring(0, 1).toUpperCase(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w500),
-              ),
+              child: (widget.groupIcon == "")
+                  ? Text(
+                      widget.groupName.substring(0, 1).toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w500),
+                    )
+                  : Image.network(widget.groupIcon),
             ),
             title: Text(
               widget.groupName,

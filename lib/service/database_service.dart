@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:chat_app/helper/helper_function.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class DatabaseService {
   final String uid;
@@ -29,6 +33,10 @@ class DatabaseService {
     QuerySnapshot snapshot =
         await userCollection.where("email", isEqualTo: email).get();
     return snapshot;
+  }
+
+  Future gettingUserWithId() async {
+    return await userCollection.doc(uid).get();
   }
 
   //get user groups
@@ -162,5 +170,31 @@ class DatabaseService {
         "recentMessageSeenBy": FieldValue.arrayUnion([uid]),
       });
     }
+  }
+
+  Future updateUserDp(String imagePath) async {
+    final imgId = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference =
+        FirebaseStorage.instance.ref().child("userdp").child("dp_${uid}");
+
+    await reference.putFile(File(imagePath));
+
+    var downloadURL = await reference.getDownloadURL();
+
+    await HelperFunctions.saveUserProfilePicFromSF(downloadURL);
+
+    await userCollection.doc(uid).update({"profilePic": downloadURL});
+  }
+
+  Future updateGroupDp(String imagePath, String groupId) async {
+    final imgId = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference =
+        FirebaseStorage.instance.ref().child("groupdp").child("group_${imgId}");
+
+    await reference.putFile(File(imagePath));
+
+    var downloadURL = await reference.getDownloadURL();
+
+    return groupCollection.doc(groupId).update({"groupIcon": downloadURL});
   }
 }

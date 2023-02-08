@@ -22,6 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String username = '';
   String email = " ";
+  String userDp = "";
   AuthService authService = AuthService();
   Stream<QuerySnapshot>? groups;
   bool _isLoading = false;
@@ -55,6 +56,13 @@ class _HomePageState extends State<HomePage> {
     await HelperFunctions.getUserNameFromSF().then((value) {
       setState(() {
         username = value!;
+      });
+    });
+
+    await HelperFunctions.getUserProfilePicFromSF().then((value) {
+      setState(() {
+        userDp = value!;
+        print(userDp);
       });
     });
 
@@ -105,10 +113,18 @@ class _HomePageState extends State<HomePage> {
           child: ListView(
             padding: EdgeInsets.symmetric(vertical: 10),
             children: [
-              Icon(
-                Icons.account_circle,
-                size: 150,
-                color: Colors.grey,
+              (userDp == "")
+                  ? Icon(
+                      Icons.account_circle,
+                      size: 150,
+                      color: Colors.grey,
+                    )
+                  : CircleAvatar(
+                      radius: 80,
+                      backgroundImage: NetworkImage(userDp),
+                    ),
+              SizedBox(
+                height: 10,
               ),
               Text(username,
                   textAlign: TextAlign.center,
@@ -297,6 +313,7 @@ class _HomePageState extends State<HomePage> {
                       groupId: snapshot.data.docs[reverseIndex]["groupId"],
                       groupName: snapshot.data.docs[reverseIndex]["groupName"],
                       userName: username,
+                      groupIcon: snapshot.data.docs[reverseIndex]["groupIcon"],
                       recentMessage: snapshot.data.docs[reverseIndex]
                           ["recentMessage"],
                       recentMessageSender: snapshot.data.docs[reverseIndex]

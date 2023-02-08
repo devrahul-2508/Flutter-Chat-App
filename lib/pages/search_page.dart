@@ -127,6 +127,7 @@ class _SearchPageState extends State<SearchPage> {
                 searchSnapshot!.docs[index]["groupId"],
                 searchSnapshot!.docs[index]["groupName"],
                 searchSnapshot!.docs[index]['admin'],
+                searchSnapshot!.docs[index]['groupIcon'],
               );
             })
         : Container();
@@ -144,7 +145,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget groupTile(
-      String username, String groupId, String groupName, String admin) {
+      String username, String groupId, String groupName, String admin,String groupIcon) {
     joinedOrNot(username, groupId, groupName, admin);
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -179,7 +180,9 @@ class _SearchPageState extends State<SearchPage> {
                   ChatPage(
                       groupId: groupId,
                       groupName: groupName,
-                      userName: username));
+                      userName: username,
+                      groupIcon: groupIcon,
+                      ));
             });
           } else {
             setState(() {

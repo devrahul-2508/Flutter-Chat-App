@@ -12,11 +12,13 @@ class ChatPage extends StatefulWidget {
   final String groupId;
   final String groupName;
   final String userName;
+  final String groupIcon;
   const ChatPage(
       {super.key,
       required this.groupId,
       required this.groupName,
-      required this.userName});
+      required this.userName,
+      required this.groupIcon});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
