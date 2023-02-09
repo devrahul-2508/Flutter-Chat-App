@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:chat_app/helper/helper_function.dart';
 import 'package:chat_app/service/database_service.dart';
+import 'package:chat_app/widgets/widgets.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -11,10 +14,12 @@ class GroupInfo extends StatefulWidget {
       {super.key,
       required this.groupId,
       required this.groupName,
-      required this.adminName});
+      required this.adminName,
+      required this.groupIcon});
   final String groupId;
   final String groupName;
   final String adminName;
+  final String groupIcon;
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -22,8 +27,24 @@ class GroupInfo extends StatefulWidget {
 
 class _GroupInfoState extends State<GroupInfo> {
   Stream? members;
+  FilePickerResult? result;
+
   String imagePath = "";
-  String userDp = "";
+  String groupDp = "";
+  String username = "";
+
+  selectImages() async {
+    result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      imagePath = result!.files.single.path!;
+
+      setState(() {});
+    } else {
+      // User canceled the picker
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -40,6 +61,12 @@ class _GroupInfoState extends State<GroupInfo> {
   }
 
   getMembers() async {
+    await HelperFunctions.getUserNameFromSF().then(
+      (value) {
+        username = value!;
+      },
+    );
+
     await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
         .getGroupMembers(widget.groupId)
         .then((value) {
@@ -68,8 +95,9 @@ class _GroupInfoState extends State<GroupInfo> {
                 Stack(
                   children: [
                     (imagePath == "")
-                        ? (userDp == "")
+                        ? (widget.groupIcon == "")
                             ? GestureDetector(
+                                onTap: selectImages,
                                 child: Icon(
                                   Icons.account_circle,
                                   size: 200,
@@ -77,11 +105,14 @@ class _GroupInfoState extends State<GroupInfo> {
                                 ),
                               )
                             : GestureDetector(
+                                onTap: selectImages,
                                 child: CircleAvatar(
                                     radius: 100,
-                                    backgroundImage: NetworkImage(userDp)),
+                                    backgroundImage:
+                                        NetworkImage(widget.groupIcon)),
                               )
                         : GestureDetector(
+                            onTap: selectImages,
                             child: CircleAvatar(
                                 radius: 100,
                                 backgroundImage: FileImage(File(imagePath))),
@@ -99,6 +130,18 @@ class _GroupInfoState extends State<GroupInfo> {
                         ))
                   ],
                 ),
+                SizedBox(
+                  height: 5,
+                ),
+                (imagePath == "")
+                    ? Container()
+                    : ElevatedButton(
+                        onPressed: () {
+                          uploadGroupDp();
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).accentColor),
+                        child: Text("Save")),
                 SizedBox(
                   height: 20,
                 ),
@@ -188,10 +231,26 @@ class _GroupInfoState extends State<GroupInfo> {
         } else {
           return Center(
               child: CircularProgressIndicator(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).accentColor,
           ));
         }
       },
     );
+  }
+
+  uploadGroupDp() async {
+    if (username == widget.adminName) {
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+          .updateGroupDp(imagePath, widget.groupId)
+          .then((value) {
+        showSnackbar(context, Colors.green, "Successfully updated");
+      },
+              onError: (e) =>
+                  showSnackbar(context, Colors.red, "Error while updating"));
+    } else {
+      showSnackbar(context, Colors.red, "You are not allowed to do that");
+    }
+
+    setState(() {});
   }
 }

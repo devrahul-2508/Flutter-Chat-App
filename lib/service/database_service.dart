@@ -80,7 +80,7 @@ class DatabaseService {
     return groupCollection
         .doc(groupId)
         .collection("messages")
-        .orderBy("time")
+        .orderBy("time", descending: true)
         .snapshots();
   }
 
@@ -195,6 +195,6 @@ class DatabaseService {
 
     var downloadURL = await reference.getDownloadURL();
 
-    return groupCollection.doc(groupId).update({"groupIcon": downloadURL});
+    await groupCollection.doc(groupId).update({"groupIcon": downloadURL});
   }
 }

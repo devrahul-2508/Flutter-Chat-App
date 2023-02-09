@@ -5,6 +5,7 @@ import 'package:chat_app/widgets/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
@@ -29,12 +30,12 @@ class _ChatPageState extends State<ChatPage> {
   Stream<QuerySnapshot>? chats;
   TextEditingController messageController = TextEditingController();
   ScrollController listScrollController = ScrollController();
+  bool _isFirstScrolled = false;
 
   @override
   void initState() {
     // TODO: implement initState
     getChatAndAdmin();
-    scrollToBottom();
     super.initState();
   }
 
@@ -55,7 +56,10 @@ class _ChatPageState extends State<ChatPage> {
                     GroupInfo(
                         groupId: widget.groupId,
                         groupName: widget.groupName,
-                        adminName: admin));
+                        adminName: admin,
+                        groupIcon: widget.groupIcon,
+                        
+                        ));
               },
               icon: Icon(Icons.info))
         ],
@@ -108,12 +112,18 @@ class _ChatPageState extends State<ChatPage> {
           DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
               .toggleRecentMessageSeen(widget.groupId);
 
-          scrollToBottom();
+          if (!_isFirstScrolled) {
+            _isFirstScrolled = true;
+          } else {
+            scrollToBottom();
+          }
+
           return snapshot.hasData
               ? Expanded(
                   child: ListView.builder(
                       controller: listScrollController,
                       itemCount: snapshot.data.docs.length,
+                      reverse: true,
                       itemBuilder: (context, index) {
                         return MessageTile(
                           message: snapshot.data.docs[index]["message"],
@@ -189,10 +199,11 @@ class _ChatPageState extends State<ChatPage> {
 
   scrollToBottom() {
     if (listScrollController.hasClients) {
+      print("Called scroll");
       listScrollController.animateTo(
-          listScrollController.position.maxScrollExtent + 100,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut);
+          listScrollController.position.minScrollExtent,
+          duration: Duration(milliseconds: 10000),
+          curve: Curves.easeIn);
     }
   }
 }
