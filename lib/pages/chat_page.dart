@@ -54,12 +54,11 @@ class _ChatPageState extends State<ChatPage> {
                 nextScreen(
                     context,
                     GroupInfo(
-                        groupId: widget.groupId,
-                        groupName: widget.groupName,
-                        adminName: admin,
-                        groupIcon: widget.groupIcon,
-                        
-                        ));
+                      groupId: widget.groupId,
+                      groupName: widget.groupName,
+                      adminName: admin,
+                      groupIcon: widget.groupIcon,
+                    ));
               },
               icon: Icon(Icons.info))
         ],
@@ -112,18 +111,13 @@ class _ChatPageState extends State<ChatPage> {
           DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
               .toggleRecentMessageSeen(widget.groupId);
 
-          if (!_isFirstScrolled) {
-            _isFirstScrolled = true;
-          } else {
-            scrollToBottom();
-          }
-
           return snapshot.hasData
               ? Expanded(
                   child: ListView.builder(
                       controller: listScrollController,
                       itemCount: snapshot.data.docs.length,
                       reverse: true,
+                      shrinkWrap: true,
                       itemBuilder: (context, index) {
                         return MessageTile(
                           message: snapshot.data.docs[index]["message"],
@@ -199,11 +193,13 @@ class _ChatPageState extends State<ChatPage> {
 
   scrollToBottom() {
     if (listScrollController.hasClients) {
-      print("Called scroll");
-      listScrollController.animateTo(
-          listScrollController.position.minScrollExtent,
-          duration: Duration(milliseconds: 10000),
-          curve: Curves.easeIn);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        listScrollController.animateTo(
+          listScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      });
     }
   }
 }
