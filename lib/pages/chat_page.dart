@@ -1,3 +1,4 @@
+import 'package:chat_app/pages/edit_image_page.dart';
 import 'package:chat_app/pages/group_info.dart';
 import 'package:chat_app/service/database_service.dart';
 import 'package:chat_app/widgets/message_tile.dart';
@@ -155,6 +156,16 @@ class _ChatPageState extends State<ChatPage> {
           )),
           ButtonBar(
             children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.attach_file,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => EditImagePage()));
+                },
+              ),
               IconButton(
                 icon: const Icon(
                   Icons.send,
