@@ -40,6 +40,7 @@ dependencies:
   firebase_storage: ^11.0.10
   file_picker: ^5.2.5
   flutter_colorpicker: ^1.0.3
+  image_cropper: ^3.0.1
   
 
 dev_dependencies:
