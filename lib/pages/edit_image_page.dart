@@ -1,12 +1,25 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class EditImagePage extends StatefulWidget {
   const EditImagePage({super.key});
 
   @override
   State<EditImagePage> createState() => _EditImagePageState();
+}
+
+class DrawingArea {
+  Offset point;
+  Paint areaPaint;
+  DrawingArea({
+    required this.point,
+    required this.areaPaint,
+  });
 }
 
 class _EditImagePageState extends State<EditImagePage> {
@@ -20,7 +33,45 @@ class _EditImagePageState extends State<EditImagePage> {
     Colors.yellow
   ];
 
+  List<DrawingArea?> points = [];
+  Color selectedColor = Colors.black;
+  double strokeWidth = 2.0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   bool isEditButtonClicked = false;
+
+  void selectColour() {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('Pick a color!'),
+            content: SingleChildScrollView(
+              child: ColorPicker(
+                pickerColor: selectedColor,
+                onColorChanged: (color) {
+                  setState(() {
+                    selectedColor = color;
+                  });
+                },
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +97,54 @@ class _EditImagePageState extends State<EditImagePage> {
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           (isEditButtonClicked)
               ? editLayout(context)
               : Container(
                   height: 150,
                 ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 350,
-            color: Colors.red,
+          GestureDetector(
+            onPanDown: (details) {
+              setState(() {
+                points.add(
+                  DrawingArea(
+                    point: details.localPosition,
+                    areaPaint: Paint()
+                      ..color = selectedColor
+                      ..isAntiAlias = true
+                      ..strokeWidth = strokeWidth
+                      ..strokeCap = StrokeCap.round,
+                  ),
+                );
+              });
+            },
+            onPanUpdate: (details) {
+              setState(() {
+                points.add(
+                  DrawingArea(
+                    point: details.localPosition,
+                    areaPaint: Paint()
+                      ..color = selectedColor
+                      ..isAntiAlias = true
+                      ..strokeWidth = strokeWidth
+                      ..strokeCap = StrokeCap.round,
+                  ),
+                );
+              });
+            },
+            onPanEnd: (details) {
+              setState(() {
+                points.add(null);
+              });
+            },
+            child: CustomPaint(
+              painter: MyCustomPainter(points),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 350,
+              ),
+            ),
           ),
           SizedBox(
             height: 60,
@@ -106,14 +195,47 @@ class _EditImagePageState extends State<EditImagePage> {
   }
 
   Widget editLayout(BuildContext context) {
-    return Container(
-      height: 150,
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          _horizontalWrappedRow(colorList),
-          Slider(value: 0.5, onChanged: (value) {})
-        ],
+    return Padding(
+      padding: EdgeInsets.fromLTRB(10, 0, 10, 110),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        height: 40,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30), color: Colors.white),
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.color_lens),
+              onPressed: () {
+                selectColour();
+              },
+              color: selectedColor,
+            ),
+            Expanded(
+                child: Slider(
+              min: 1.0,
+              max: 7.0,
+              activeColor: selectedColor,
+              value: strokeWidth,
+              onChanged: (value) {
+                setState(() {
+                  strokeWidth = value;
+                });
+              },
+            )),
+            IconButton(
+              icon: Icon(
+                Icons.layers_clear,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                setState(() {
+                  points.clear();
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -146,5 +268,36 @@ class _EditImagePageState extends State<EditImagePage> {
         children: list,
       ),
     );
+  }
+}
+
+class MyCustomPainter extends CustomPainter {
+  List<DrawingArea?> points;
+
+  MyCustomPainter(
+    this.points,
+  );
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint background = Paint()..color = Colors.white;
+    Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(rect, background);
+
+    for (var i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        Paint paint = points[i]!.areaPaint;
+        canvas.drawLine(points[i]!.point, points[i + 1]!.point, paint);
+      } else if (points[i] != null && points[i + 1] != null) {
+        Paint paint = points[i]!.areaPaint;
+
+        canvas.drawPoints(PointMode.points, [points[i]!.point], paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
