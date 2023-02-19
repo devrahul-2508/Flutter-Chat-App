@@ -10,6 +10,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:path_provider/path_provider.dart';
 
 class EditImagePage extends StatefulWidget {
   const EditImagePage({super.key, required this.imagePath});
@@ -34,37 +35,47 @@ class _EditImagePageState extends State<EditImagePage> {
 
   ui.Image? backgroundImage;
   bool isImageloaded = false;
+  bool isEditButtonClicked = false;
 
   List<DrawingArea?> points = [];
   Color selectedColor = Colors.black;
   double strokeWidth = 2.0;
+  File? loadedImage;
+  CroppedFile? croppedImage;
 
   static GlobalKey ssKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    convertImage();
+    getImage();
   }
 
-  convertImage() async {
-    File file = File(widget.imagePath);
-    Uint8List bytes = await file.readAsBytes();
-    backgroundImage = await loadImage(bytes);
-  }
-
-  Future<ui.Image> loadImage(Uint8List bytes) async {
-    final Completer<ui.Image> completer = Completer();
-    ui.decodeImageFromList(bytes, (ui.Image img) {
-      setState(() {
-        isImageloaded = true;
-      });
-      return completer.complete(img);
+  getImage() {
+    loadedImage = File(widget.imagePath);
+    setState(() {
+      isImageloaded = true;
     });
-    return completer.future;
   }
 
-  void takeScreenShort() async {
+  // convertImage() async {
+  //   File file = File(widget.imagePath);
+  //   Uint8List bytes = await file.readAsBytes();
+  //   backgroundImage = await loadImage(bytes);
+  // }
+
+  // Future<ui.Image> loadImage(Uint8List bytes) async {
+  //   final Completer<ui.Image> completer = Completer();
+  //   ui.decodeImageFromList(bytes, (ui.Image img) {
+  //     setState(() {
+  //       isImageloaded = true;
+  //     });
+  //     return completer.complete(img);
+  //   });
+  //   return completer.future;
+  // }
+
+  Future takeScreenShort() async {
     RenderRepaintBoundary boundary =
         ssKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
@@ -73,9 +84,11 @@ class _EditImagePageState extends State<EditImagePage> {
     ByteData? bytes = await image.toByteData(format: ui.ImageByteFormat.png);
 
     Uint8List memoryImageData = bytes!.buffer.asUint8List();
-  }
 
-  bool isEditButtonClicked = false;
+    final tempDir = await getTemporaryDirectory();
+    loadedImage = await File('${tempDir.path}/image.png').create();
+    loadedImage!.writeAsBytesSync(memoryImageData);
+  }
 
   void selectColour() {
     showDialog(
@@ -141,70 +154,85 @@ class _EditImagePageState extends State<EditImagePage> {
               : Container(
                   height: 150,
                 ),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: 220,
-                child: ClipRRect(child: Image.file(File(widget.imagePath))),
-              ),
-              GestureDetector(
-                  onPanDown: (details) {
-                    setState(() {
-                      if (isEditButtonClicked) {
-                        points.add(
-                          DrawingArea(
-                            point: details.localPosition,
-                            areaPaint: Paint()
-                              ..color = selectedColor
-                              ..isAntiAlias = true
-                              ..strokeWidth = strokeWidth
-                              ..strokeCap = StrokeCap.round,
-                          ),
-                        );
-                      }
-                    });
-                  },
-                  onPanUpdate: (details) {
-                    setState(() {
-                      if (isEditButtonClicked) {
-                        points.add(
-                          DrawingArea(
-                            point: details.localPosition,
-                            areaPaint: Paint()
-                              ..color = selectedColor
-                              ..isAntiAlias = true
-                              ..strokeWidth = strokeWidth
-                              ..strokeCap = StrokeCap.round,
-                          ),
-                        );
-                      }
-                    });
-                  },
-                  onPanEnd: (details) {
-                    setState(() {
-                      if (isEditButtonClicked) {
-                        points.add(null);
-                      }
-                    });
-                  },
-                  child: (isImageloaded)
-                      ? Container(
+                // SingleChildScrollView(
+                //   child: Column(children: [
+                    
+                //   ]),
+                // ),
+          (isImageloaded)
+              ? RepaintBoundary(
+                  key: ssKey,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
                           height: 220,
-                          width: MediaQuery.of(context).size.width,
                           child: ClipRRect(
-                            child: CustomPaint(
-                              painter:
-                                  MyCustomPainter(points, backgroundImage!),
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: CircularProgressIndicator(
-                          color: Theme.of(context).accentColor,
-                        ))),
-            ],
-          ),
+                            child: (croppedImage != null)
+                                ? Image.file(File(croppedImage!.path))
+                                : Image.file(File(loadedImage!.path)),
+                          )),
+                      Positioned(
+                        left: 0.0,
+                        right: 0.0,
+                        bottom: 0.0,
+                        top: 0.0,
+                        child: GestureDetector(
+                            onPanDown: (details) {
+                              setState(() {
+                                if (isEditButtonClicked) {
+                                  points.add(
+                                    DrawingArea(
+                                      point: details.localPosition,
+                                      areaPaint: Paint()
+                                        ..color = selectedColor
+                                        ..isAntiAlias = true
+                                        ..strokeWidth = strokeWidth
+                                        ..strokeCap = StrokeCap.round,
+                                    ),
+                                  );
+                                }
+                              });
+                            },
+                            onPanUpdate: (details) {
+                              setState(() {
+                                if (isEditButtonClicked) {
+                                  points.add(
+                                    DrawingArea(
+                                      point: details.localPosition,
+                                      areaPaint: Paint()
+                                        ..color = selectedColor
+                                        ..isAntiAlias = true
+                                        ..strokeWidth = strokeWidth
+                                        ..strokeCap = StrokeCap.round,
+                                    ),
+                                  );
+                                }
+                              });
+                            },
+                            onPanEnd: (details) {
+                              setState(() {
+                                if (isEditButtonClicked) {
+                                  points.add(null);
+                                }
+                              });
+                            },
+                            child: Container(
+                              height: 220,
+                              child: ClipRRect(
+                                child: CustomPaint(
+                                  painter: MyCustomPainter(points),
+                                ),
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
+                )
+              : Center(
+                  child: CircularProgressIndicator(
+                  color: Theme.of(context).accentColor,
+                )),
           SizedBox(
             height: 60,
           ),
@@ -301,8 +329,10 @@ class _EditImagePageState extends State<EditImagePage> {
   }
 
   _cropImage() async {
-    CroppedFile? croppedFile = await ImageCropper().cropImage(
-      sourcePath: widget.imagePath,
+    await takeScreenShort();
+    croppedImage = await ImageCropper().cropImage(
+      sourcePath: loadedImage!.path,
+      //  (croppedImage == null) ? widget.imagePath : croppedImage!.path,
       aspectRatioPresets: [
         CropAspectRatioPreset.square,
         CropAspectRatioPreset.ratio3x2,
@@ -325,16 +355,16 @@ class _EditImagePageState extends State<EditImagePage> {
         ),
       ],
     );
+
+    setState(() {});
   }
 }
 
 class MyCustomPainter extends CustomPainter {
   List<DrawingArea?> points;
-  final ui.Image myBackground;
 
   MyCustomPainter(
     this.points,
-    this.myBackground,
   );
 
   @override
