@@ -154,90 +154,103 @@ class _EditImagePageState extends State<EditImagePage> {
               : Container(
                   height: 150,
                 ),
-                // SingleChildScrollView(
-                //   child: Column(children: [
-                    
-                //   ]),
-                // ),
-          (isImageloaded)
-              ? RepaintBoundary(
-                  key: ssKey,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                          height: 220,
-                          child: ClipRRect(
-                            child: (croppedImage != null)
-                                ? Image.file(File(croppedImage!.path))
-                                : Image.file(File(loadedImage!.path)),
-                          )),
-                      Positioned(
-                        left: 0.0,
-                        right: 0.0,
-                        bottom: 0.0,
-                        top: 0.0,
-                        child: GestureDetector(
-                            onPanDown: (details) {
-                              setState(() {
-                                if (isEditButtonClicked) {
-                                  points.add(
-                                    DrawingArea(
-                                      point: details.localPosition,
-                                      areaPaint: Paint()
-                                        ..color = selectedColor
-                                        ..isAntiAlias = true
-                                        ..strokeWidth = strokeWidth
-                                        ..strokeCap = StrokeCap.round,
-                                    ),
-                                  );
-                                }
-                              });
-                            },
-                            onPanUpdate: (details) {
-                              setState(() {
-                                if (isEditButtonClicked) {
-                                  points.add(
-                                    DrawingArea(
-                                      point: details.localPosition,
-                                      areaPaint: Paint()
-                                        ..color = selectedColor
-                                        ..isAntiAlias = true
-                                        ..strokeWidth = strokeWidth
-                                        ..strokeCap = StrokeCap.round,
-                                    ),
-                                  );
-                                }
-                              });
-                            },
-                            onPanEnd: (details) {
-                              setState(() {
-                                if (isEditButtonClicked) {
-                                  points.add(null);
-                                }
-                              });
-                            },
-                            child: Container(
-                              height: 220,
-                              child: ClipRRect(
-                                child: CustomPaint(
-                                  painter: MyCustomPainter(points),
+      
+          Expanded(
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Positioned(
+                  top: 60,
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    child: (isImageloaded)
+                        ? RepaintBoundary(
+                            key: ssKey,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Center(
+                                  child: (croppedImage != null)
+                                      ? Image.file(
+                                          File(croppedImage!.path),
+                                          fit: BoxFit.fill,
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                        )
+                                      : Image.file(
+                                          File(loadedImage!.path),
+                                          fit: BoxFit.fill,
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                        ),
                                 ),
-                              ),
-                            )),
-                      ),
-                    ],
+                                Positioned(
+                                  left: 0.0,
+                                  right: 0.0,
+                                  bottom: 0.0,
+                                  top: 0.0,
+                                  child: GestureDetector(
+                                    onPanDown: (details) {
+                                      setState(() {
+                                        if (isEditButtonClicked) {
+                                          points.add(
+                                            DrawingArea(
+                                              point: details.localPosition,
+                                              areaPaint: Paint()
+                                                ..color = selectedColor
+                                                ..isAntiAlias = true
+                                                ..strokeWidth = strokeWidth
+                                                ..strokeCap = StrokeCap.round,
+                                            ),
+                                          );
+                                        }
+                                      });
+                                    },
+                                    onPanUpdate: (details) {
+                                      setState(() {
+                                        if (isEditButtonClicked) {
+                                          points.add(
+                                            DrawingArea(
+                                              point: details.localPosition,
+                                              areaPaint: Paint()
+                                                ..color = selectedColor
+                                                ..isAntiAlias = true
+                                                ..strokeWidth = strokeWidth
+                                                ..strokeCap = StrokeCap.round,
+                                            ),
+                                          );
+                                        }
+                                      });
+                                    },
+                                    onPanEnd: (details) {
+                                      setState(() {
+                                        if (isEditButtonClicked) {
+                                          points.add(null);
+                                        }
+                                      });
+                                    },
+                                    child: ClipRRect(
+                                      child: CustomPaint(
+                                        painter: MyCustomPainter(points),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Center(
+                            child: CircularProgressIndicator(
+                            color: Theme.of(context).accentColor,
+                          )),
                   ),
-                )
-              : Center(
-                  child: CircularProgressIndicator(
-                  color: Theme.of(context).accentColor,
-                )),
-          SizedBox(
-            height: 60,
+                ),
+                Positioned(bottom: 10.0, child: _buildMessageComposer()),
+              ],
+            ),
           ),
-          _buildMessageComposer(),
-          SizedBox(height: 40)
+
+          //SizedBox(height: 0)
         ],
       ),
     );
