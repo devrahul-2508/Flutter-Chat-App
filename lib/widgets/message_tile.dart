@@ -9,11 +9,13 @@ class MessageTile extends StatefulWidget {
       required this.isMe,
       required this.message,
       required this.sender,
-      required this.messageTimeStamp});
+      required this.messageTimeStamp,
+      required this.image});
 
   final String message;
   final String sender;
   final bool isMe;
+  final String image;
   final int messageTimeStamp;
 
   @override
@@ -36,8 +38,11 @@ class _MessageTileState extends State<MessageTile> {
                 : CrossAxisAlignment.start,
             children: [
               Container(
-                  padding: const EdgeInsets.only(
-                      top: 17, bottom: 17, left: 20, right: 20),
+                  padding: EdgeInsets.only(
+                      top: 17,
+                      bottom: 17,
+                      left: (widget.image == "") ? 20 : 10,
+                      right: (widget.image == "") ? 20 : 10),
                   decoration: BoxDecoration(
                     borderRadius: widget.isMe
                         ? BorderRadius.only(
@@ -65,6 +70,16 @@ class _MessageTileState extends State<MessageTile> {
                         SizedBox(
                           height: 8,
                         ),
+                        (widget.image == "")
+                            ? SizedBox.shrink()
+                            : ClipRRect(
+                                child: Image.network(
+                                  widget.image,
+                                  fit: BoxFit.cover,
+                                  width: 200,
+                                  height: 150,
+                                ),
+                              ),
                         Text(
                           widget.message,
                           textAlign: TextAlign.center,

@@ -51,6 +51,8 @@ class _ChatPageState extends State<ChatPage> {
           MaterialPageRoute(
               builder: (_) => EditImagePage(
                     imagePath: imagePath,
+                    groupId: widget.groupId,
+                    username: widget.userName,
                   )));
 
       setState(() {});
@@ -151,6 +153,7 @@ class _ChatPageState extends State<ChatPage> {
                           sender: snapshot.data.docs[index]['sender'],
                           isMe: widget.userName ==
                               snapshot.data.docs[index]['sender'],
+                              image: snapshot.data.docs[index]['imgUrl'],
                           messageTimeStamp: snapshot.data.docs[index]['time'],
                         );
                       }),
@@ -211,6 +214,7 @@ class _ChatPageState extends State<ChatPage> {
     if (messageController.text.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
         "message": messageController.text,
+        "imgUrl": "",
         "sender": widget.userName,
         "time": DateTime.now().microsecondsSinceEpoch
       };

@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
+import 'package:chat_app/service/database_service.dart';
 import 'package:chat_app/widgets/image_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -16,9 +18,15 @@ import 'package:path_provider/path_provider.dart';
 import '../models/text_info.dart';
 
 class EditImagePage extends StatefulWidget {
-  const EditImagePage({super.key, required this.imagePath});
+  const EditImagePage(
+      {super.key,
+      required this.imagePath,
+      required this.groupId,
+      required this.username});
 
   final String imagePath;
+  final String groupId;
+  final String username;
 
   @override
   State<EditImagePage> createState() => _EditImagePageState();
@@ -34,12 +42,13 @@ class DrawingArea {
 }
 
 class _EditImagePageState extends State<EditImagePage> {
-  TextEditingController messageControllerNew = TextEditingController();
+  TextEditingController messageController = TextEditingController();
   TextEditingController textController = TextEditingController();
 
   ui.Image? backgroundImage;
   bool isImageloaded = false;
   bool isEditButtonClicked = false;
+  bool isSending = false;
 
   List<DrawingArea?> points = [];
   Color selectedColor = Colors.black;
@@ -246,7 +255,13 @@ class _EditImagePageState extends State<EditImagePage> {
                                   ),
                                 ),
                                 for (int i = 0; i < texts.length; i++)
-                                  _textWidget(context, texts[i])
+                                  _textWidget(context, texts[i]),
+                                (isSending)
+                                    ? Center(
+                                        child: CircularProgressIndicator(
+                                        color: Theme.of(context).accentColor,
+                                      ))
+                                    : SizedBox.shrink(),
                               ],
                             ),
                           )
@@ -315,7 +330,7 @@ class _EditImagePageState extends State<EditImagePage> {
               child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
-              controller: messageControllerNew,
+              controller: messageController,
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration.collapsed(
                 hintText: "Enter a caption",
@@ -331,7 +346,10 @@ class _EditImagePageState extends State<EditImagePage> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  //sendMessage();
+                  sendMessage();
+                  setState(() {
+                    isSending = true;
+                  });
                 },
               ),
             ],
@@ -454,6 +472,33 @@ class _EditImagePageState extends State<EditImagePage> {
     );
 
     setState(() {});
+  }
+
+  sendMessage() async {
+    await takeScreenShort();
+    await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+        .sendImage(loadedImage!.path, widget.groupId)
+        .then((value) {
+      Map<String, dynamic> chatMessageMap = {
+        "message": messageController.text,
+        "imgUrl": value,
+        "sender": widget.username,
+        "time": DateTime.now().microsecondsSinceEpoch
+      };
+
+      DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+          .sendMessage(widget.groupId, chatMessageMap);
+
+      DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+          .toggleRecentMessageSeen(widget.groupId);
+
+      setState(() {
+        messageController.clear();
+        isSending = false;
+      });
+
+      Navigator.pop(context);
+    });
   }
 }
 
