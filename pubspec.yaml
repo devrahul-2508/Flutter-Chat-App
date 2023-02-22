@@ -39,6 +39,9 @@ dependencies:
   firebase_core: ^2.4.1
   firebase_storage: ^11.0.10
   file_picker: ^5.2.5
+  flutter_colorpicker: ^1.0.3
+  image_cropper: ^3.0.1
+  path_provider: ^2.0.12
   
 
 dev_dependencies:

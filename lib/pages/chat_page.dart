@@ -4,6 +4,7 @@ import 'package:chat_app/service/database_service.dart';
 import 'package:chat_app/widgets/message_tile.dart';
 import 'package:chat_app/widgets/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -32,6 +33,33 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController messageController = TextEditingController();
   ScrollController listScrollController = ScrollController();
   bool _isFirstScrolled = false;
+
+  FilePickerResult? result;
+
+  String imagePath = "";
+  String groupDp = "";
+  String username = "";
+
+  selectImages() async {
+    result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      imagePath = result!.files.single.path!;
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => EditImagePage(
+                    imagePath: imagePath,
+                    groupId: widget.groupId,
+                    username: widget.userName,
+                  )));
+
+      setState(() {});
+    } else {
+      // User canceled the picker
+    }
+  }
 
   @override
   void initState() {
@@ -125,6 +153,7 @@ class _ChatPageState extends State<ChatPage> {
                           sender: snapshot.data.docs[index]['sender'],
                           isMe: widget.userName ==
                               snapshot.data.docs[index]['sender'],
+                              image: snapshot.data.docs[index]['imgUrl'],
                           messageTimeStamp: snapshot.data.docs[index]['time'],
                         );
                       }),
@@ -161,9 +190,8 @@ class _ChatPageState extends State<ChatPage> {
                   Icons.attach_file,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => EditImagePage()));
+                onPressed: () async {
+                  await selectImages();
                 },
               ),
               IconButton(
@@ -186,6 +214,7 @@ class _ChatPageState extends State<ChatPage> {
     if (messageController.text.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
         "message": messageController.text,
+        "imgUrl": "",
         "sender": widget.userName,
         "time": DateTime.now().microsecondsSinceEpoch
       };

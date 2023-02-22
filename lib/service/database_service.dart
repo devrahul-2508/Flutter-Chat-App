@@ -197,4 +197,16 @@ class DatabaseService {
 
     await groupCollection.doc(groupId).update({"groupIcon": downloadURL});
   }
+
+  Future<String> sendImage(String imagePath, String groupId) async {
+    final imgId = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference =
+        FirebaseStorage.instance.ref().child("messageimages").child("message_${imgId}");
+
+    await reference.putFile(File(imagePath));
+
+    var downloadURL = await reference.getDownloadURL();
+
+    return downloadURL;
+  }
 }
