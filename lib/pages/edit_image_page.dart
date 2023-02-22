@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
+import 'package:chat_app/widgets/image_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -11,6 +12,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../models/text_info.dart';
 
 class EditImagePage extends StatefulWidget {
   const EditImagePage({super.key, required this.imagePath});
@@ -32,6 +35,7 @@ class DrawingArea {
 
 class _EditImagePageState extends State<EditImagePage> {
   TextEditingController messageControllerNew = TextEditingController();
+  TextEditingController textController = TextEditingController();
 
   ui.Image? backgroundImage;
   bool isImageloaded = false;
@@ -39,9 +43,13 @@ class _EditImagePageState extends State<EditImagePage> {
 
   List<DrawingArea?> points = [];
   Color selectedColor = Colors.black;
+  Color textColor = Colors.red;
   double strokeWidth = 2.0;
   File? loadedImage;
   CroppedFile? croppedImage;
+  String text = "";
+  Offset offset = Offset.zero;
+  List<TextInfo> texts = [];
 
   static GlobalKey ssKey = GlobalKey();
 
@@ -58,22 +66,21 @@ class _EditImagePageState extends State<EditImagePage> {
     });
   }
 
-  // convertImage() async {
-  //   File file = File(widget.imagePath);
-  //   Uint8List bytes = await file.readAsBytes();
-  //   backgroundImage = await loadImage(bytes);
-  // }
+  addNewText(BuildContext context) {
+    setState(() {
+      texts.add(TextInfo(
+          text: textController.text,
+          left: 0,
+          top: 0,
+          color: Colors.red,
+          fontWeight: FontWeight.normal,
+          fontStyle: FontStyle.normal,
+          fontSize: 20,
+          textAlign: TextAlign.center));
 
-  // Future<ui.Image> loadImage(Uint8List bytes) async {
-  //   final Completer<ui.Image> completer = Completer();
-  //   ui.decodeImageFromList(bytes, (ui.Image img) {
-  //     setState(() {
-  //       isImageloaded = true;
-  //     });
-  //     return completer.complete(img);
-  //   });
-  //   return completer.future;
-  // }
+      Navigator.of(context).pop();
+    });
+  }
 
   Future takeScreenShort() async {
     RenderRepaintBoundary boundary =
@@ -131,7 +138,9 @@ class _EditImagePageState extends State<EditImagePage> {
               },
               icon: Icon(Icons.crop)),
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                textDialog(context);
+              },
               icon: Text(
                 "T",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
@@ -154,7 +163,7 @@ class _EditImagePageState extends State<EditImagePage> {
               : Container(
                   height: 150,
                 ),
-      
+
           Expanded(
             child: Stack(
               alignment: Alignment.topCenter,
@@ -236,6 +245,8 @@ class _EditImagePageState extends State<EditImagePage> {
                                     ),
                                   ),
                                 ),
+                                for (int i = 0; i < texts.length; i++)
+                                  _textWidget(context, texts[i])
                               ],
                             ),
                           )
@@ -252,6 +263,41 @@ class _EditImagePageState extends State<EditImagePage> {
 
           //SizedBox(height: 0)
         ],
+      ),
+    );
+  }
+
+  Widget _textWidget(BuildContext context, TextInfo textInfo) {
+    return Positioned(
+      left: textInfo.left,
+      top: textInfo.top,
+      child: GestureDetector(
+        onLongPress: () {
+          selectColour();
+          textInfo.color = selectedColor;
+        },
+        onPanUpdate: ((details) {
+          setState(() {
+            textInfo.top = textInfo.top + details.delta.dy;
+            textInfo.left = textInfo.left + details.delta.dx;
+          });
+        }),
+        child: SizedBox(
+          width: 150,
+          height: 150,
+          child: Padding(
+            padding: EdgeInsets.all(8),
+            child: Center(
+              child: Text(textInfo.text,
+                  textAlign: textInfo.textAlign,
+                  style: TextStyle(
+                      fontWeight: textInfo.fontWeight,
+                      fontSize: textInfo.fontSize,
+                      fontStyle: textInfo.fontStyle,
+                      color: textInfo.color)),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -293,6 +339,44 @@ class _EditImagePageState extends State<EditImagePage> {
         ]),
       ),
     );
+  }
+
+  textDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Enter Text"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: textController,
+                  decoration: InputDecoration(
+                      hintText: "Add your text here",
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xffb9f85ff)),
+                          borderRadius: BorderRadius.circular(20)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0xffb9f85ff), width: 3),
+                          borderRadius: BorderRadius.circular(20))),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    addNewText(context);
+                  },
+                  child: Text("Add"),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).accentColor),
+                )
+              ],
+            ),
+          );
+        });
   }
 
   Widget editLayout(BuildContext context) {
