@@ -95,8 +95,10 @@ class _GroupTileState extends State<GroupTile> {
                       SizedBox(
                         height: 5,
                       ),
-                      Text(DateTimeConverter.convertTimeStamp(
-                          int.parse(widget.recentMessageTime!)))
+                      (widget.recentMessageTime != "")
+                          ? Text(DateTimeConverter.convertTimeStamp(
+                              int.parse(widget.recentMessageTime!)))
+                          : SizedBox()
                     ],
                   )),
       ),

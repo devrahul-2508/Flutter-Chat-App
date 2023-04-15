@@ -61,7 +61,9 @@ class _HomePageState extends State<HomePage> {
 
     await HelperFunctions.getUserProfilePicFromSF().then((value) {
       setState(() {
-        userDp = value!;
+        if (value != null) {
+          userDp = value!;
+        }
         print(userDp);
       });
     });

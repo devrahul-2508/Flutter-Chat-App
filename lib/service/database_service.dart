@@ -56,7 +56,7 @@ class DatabaseService {
       "groupId": "",
       "recentMessage": "",
       "recentMessageSender": "",
-      "recentMessageTime": "",
+      "recentMessageTime": DateTime.now().microsecondsSinceEpoch.toString(),
       "recentMessageSeenBy": []
     });
 
@@ -200,8 +200,10 @@ class DatabaseService {
 
   Future<String> sendImage(String imagePath, String groupId) async {
     final imgId = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference reference =
-        FirebaseStorage.instance.ref().child("messageimages").child("message_${imgId}");
+    Reference reference = FirebaseStorage.instance
+        .ref()
+        .child("messageimages")
+        .child("message_${imgId}");
 
     await reference.putFile(File(imagePath));
 
